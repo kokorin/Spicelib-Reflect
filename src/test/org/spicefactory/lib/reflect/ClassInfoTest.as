@@ -7,6 +7,7 @@ import org.hamcrest.core.isA;
 import org.hamcrest.object.equalTo;
 import org.hamcrest.object.notNullValue;
 import org.hamcrest.object.sameInstance;
+import org.spicefactory.lib.reflect.model.ClassA;
 import org.spicefactory.lib.reflect.model.ClassB;
 import org.spicefactory.lib.reflect.model.InterfaceA;
 import org.spicefactory.lib.reflect.model.InternalSubclass;
@@ -142,7 +143,8 @@ public class ClassInfoTest {
 		var ci:ClassInfo = ClassInfo.forClass(InterfaceA);
 		ci.newInstance([]);
 	}
-	
+
+    [Ignore]
 	[Test(async)]
 	public function applicationDomain () : void {
 		assertThat(ApplicationDomain.currentDomain.hasDefinition("org.spicefactory.lib.reflect.domain.ClassInChildDomain"), 
@@ -182,7 +184,16 @@ public class ClassInfoTest {
 		var ci:ClassInfo = ClassInfo.forInstance(o);
 		assertThat(ci.simpleName, equalTo("ArrayCollection"));
 	}
-	
+
+    [Test]
+    public function vector () : void {
+        var type:Class = Vector.<ClassA> as Class;
+        var o:Object = new type();
+        var instanceInfo:ClassInfo = ClassInfo.forInstance(o);
+        var classInfo:ClassInfo = ClassInfo.forClass(type);
+        assertThat(classInfo, equalTo(instanceInfo));
+    }
+
 	[Test]
 	public function numbers () : void {
 		var n1:Number = 3.45;

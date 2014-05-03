@@ -16,6 +16,8 @@
 
 package org.spicefactory.lib.reflect {
 
+import flash.utils.getDefinitionByName;
+
 import org.spicefactory.lib.collection.Map;
 import org.spicefactory.lib.errors.IllegalArgumentError;
 import org.spicefactory.lib.errors.IllegalStateError;
@@ -100,27 +102,39 @@ public class ClassInfo extends MetadataAware {
 		return getClassInfo(clazz, getDomain(domain));
 	}
 
-	/**
-	 * Returns an instance representing the class of the specified instance.
-	 * If the optional <code>domain</code> parameter is omitted <code>ApplicationDomain.currentDomain</code>
-	 * will be used.
-	 * 
-	 * @param instance the instance to return the ClassInfo for
-	 * @return an instance representing the class of the specified instance
-	 */		
-	public static function forInstance (instance:Object, domain:ApplicationDomain = null) : ClassInfo {
-		if (instance == null) throw new IllegalArgumentError("Instance must not be null");
-		if (instance is Proxy || instance is Number) {
-			// Cannot rely on Proxy subclasses to support the constructor property
-			// For Number instance constructor property always returns Number (never int)
-			return forName(getQualifiedClassName(instance), domain);
-		}
-		var C:Class = instance.constructor as Class;
-		if (C == null) {
-			return forName(getQualifiedClassName(instance), domain);
-		}
-		return getClassInfo(C, getDomain(domain));
-	}
+    private static const UNTYPED_VECTOR_CONSTRUCTOR:Class = getUntypedVectorConstructor();
+
+    private static function getUntypedVectorConstructor():Class {
+        var result:Class;
+        try {
+            const vectorObjectClass:Class = getDefinitionByName("__AS3__.vec::Vector.<Object>") as Class;
+            const vectorObject:Object = new vectorObjectClass();
+            result = vectorObject.constructor;
+        } catch (e:Error) {
+        }
+        return result;
+    }
+    /**
+     * Returns an instance representing the class of the specified instance.
+     * If the optional <code>domain</code> parameter is omitted <code>ApplicationDomain.currentDomain</code>
+     * will be used.
+     *
+     * @param instance the instance to return the ClassInfo for
+     * @return an instance representing the class of the specified instance
+     */
+    public static function forInstance (instance:Object, domain:ApplicationDomain = null) : ClassInfo {
+        if (instance == null) throw new IllegalArgumentError("Instance must not be null");
+        if (instance is Proxy || instance is Number) {
+            // Cannot rely on Proxy subclasses to support the constructor property
+            // For Number instance constructor property always returns Number (never int)
+            return forName(getQualifiedClassName(instance), domain);
+        }
+        var C:Class = instance.constructor as Class;
+        if (C == null || C == UNTYPED_VECTOR_CONSTRUCTOR) {
+            return forName(getQualifiedClassName(instance), domain);
+        }
+        return getClassInfo(C, getDomain(domain));
+    }
 	
 	private static function getDomain (domain:ApplicationDomain) : ApplicationDomain {
 		return (domain == null) ? currentDomain : domain;
