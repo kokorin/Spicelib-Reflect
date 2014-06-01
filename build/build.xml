@@ -1,4 +1,4 @@
-<project name="Spicelib Reflect"> 
+<project name="Spicelib Reflect" default="release">
 
 	
 	<property file="build.properties" />

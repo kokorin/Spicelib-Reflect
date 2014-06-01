@@ -1,5 +1,6 @@
 package org.spicefactory.lib.reflect {
 import org.flexunit.assertThat;
+import org.flexunit.asserts.assertTrue;
 import org.flexunit.asserts.fail;
 import org.flexunit.async.Async;
 import org.hamcrest.collection.arrayWithSize;
@@ -203,6 +204,9 @@ public class ClassInfoTest {
 		assertThat(ClassInfo.forInstance(n1).name, equalTo("Number"));
 		assertThat(ClassInfo.forInstance(n2).name, equalTo("int"));
 		assertThat(ClassInfo.forInstance(n3).name, equalTo("int"));
+
+        assertTrue(ClassInfo.forInstance(n2).isType(Number));
+        assertTrue(ClassInfo.forInstance(n3).isType(Number));
 	}
 	
 	

@@ -43,6 +43,15 @@ public class ClassInfoProviderFactory {
 		if (!hasJSON) {
 			initJSON();
 		}
+
+        /* int and uint are actually subclasses of Number.
+        * Both expressions (5 is Number) and (5 is int) are true.
+        * But describeType() doesn't describe that relations, so
+        * we just add workaround
+        * @author Denis Kokorin*/
+        if (type == int || type == uint) {
+            return new IntInfoProvider();
+        }
 		return (hasJSON.value) 
 				? new JsonClassInfoProvider(type, describeTypeJSON, staticFlags, instanceFlags)
 				: new XmlClassInfoProvider(type);
@@ -59,4 +68,19 @@ public class ClassInfoProviderFactory {
 	
 	
 }
+}
+
+import org.spicefactory.lib.reflect.provider.ClassInfoProvider;
+
+class IntInfoProvider implements ClassInfoProvider {
+    private const _staticInfo:Object = {traits:{}};
+    private const _instanceInfo:Object = {traits:{bases:["Number"], constructor:{type:"*", optional:true}}};
+
+    public function get staticInfo():Object {
+        return _staticInfo;
+    }
+
+    public function get instanceInfo():Object {
+        return _instanceInfo;
+    }
 }
